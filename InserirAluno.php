@@ -3,8 +3,7 @@
 use Alura\Pdo\Domain\Model\Student;
 require_once 'vendor/autoload.php';
 
-$dbPath = __DIR__ . '/banco.sqlite';
-$pdo = new PDO('sqlite:' . $dbPath);
+$pdo = \Alura\Pdo\Infrastructure\Persistence\ConnecctionCreator::createConnection();
 
 $student = new Student(null, 'jane', new \DateTimeImmutable('1998-11-11'));
 

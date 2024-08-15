@@ -3,8 +3,8 @@
 use Alura\Pdo\Domain\Model\Student;
 require_once 'vendor/autoload.php';
 
-$dbPath = __DIR__ . '/banco.sqlite';
-$pdo = new PDO('sqlite:' . $dbPath);
+$pdo = \Alura\Pdo\Infrastructure\Persistence\ConnecctionCreator::createConnection();
+
 
 $result = $pdo->query("SELECT * FROM students;");
 /* PDO::FETCH_ASSOC traz só as linhas do formato linha['nome_coluna']
