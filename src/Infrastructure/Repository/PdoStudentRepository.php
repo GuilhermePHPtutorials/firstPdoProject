@@ -4,15 +4,29 @@ namespace Alura\Pdo\Infrastructure\Repository;
 
 use Alura\Pdo\Domain\Model\Student;
 use Alura\Pdo\Domain\Repository\StudentRepositoryInterface;
+use Exception;
 use PDO;
 use PDOStatement;
+use Alura\Pdo\Infrastructure\Persistence\ConnecctionCreator;
 
 class PdoStudentRepository implements StudentRepositoryInterface
 {
-    public function __construct()
+    /**
+     * @var mixed|PDO|null
+     */
+    private $connection;
+
+    public function __construct($connection = null)
     {
-        $this->connection = \Alura\Pdo\Infrastructure\Persistence\ConnecctionCreator::createConnection();
+        if ($connection === null) {
+            $connection = ConnecctionCreator::createConnection();
+        }
+        $this->connection = $connection;
     }
+
+    /**
+     * @throws Exception
+     */
     public function allStudents(): array
     {
         $sqlQuery = "SELECT * FROM students";
@@ -21,6 +35,9 @@ class PdoStudentRepository implements StudentRepositoryInterface
         return $this->hydrateStudentList($stmt);
     }
 
+    /**
+     * @throws Exception
+     */
     public function studentBirthAt(\DateTimeInterface $birthDate): array
     {
         $sqlQuery = "SELECT * FROM students WHERE BirthDate = ?";
@@ -28,9 +45,12 @@ class PdoStudentRepository implements StudentRepositoryInterface
         $stmt->bindValue(1, $birthDate->format('Y-m-d'));
         $stmt->execute();
 
-        return $stmt->hydrateStudentList($stmt);
+        return $this->hydrateStudentList($stmt);
     }
 
+    /**
+     * @throws Exception
+     */
     public function hydrateStudentList(PDOStatement $stmt): array
     {
         $studentsDataList = $stmt->fetchAll(PDO::FETCH_ASSOC);
