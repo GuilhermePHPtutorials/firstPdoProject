@@ -5,6 +5,7 @@ namespace Alura\Pdo\Infrastructure\Repository;
 use Alura\Pdo\Domain\Model\Student;
 use Alura\Pdo\Domain\Repository\StudentRepositoryInterface;
 use Exception;
+use http\Exception\RuntimeException;
 use PDO;
 use PDOStatement;
 use Alura\Pdo\Infrastructure\Persistence\ConnecctionCreator;
@@ -79,11 +80,18 @@ class PdoStudentRepository implements StudentRepositoryInterface
     {
         $insertQuery = 'INSERT INTO students (name, birth_date) VALUES (:name, :birth_date)';
         $stmt = $this->connection->prepare($insertQuery);
+        if ($stmt === false) {
+            throw new RuntimeException($this->connection->errorInfo()[2]);
+        }
 
         $success = $stmt->execute([
             ':name' => $student->name(),
             ':birth_date' => $student->birthDate()->format('Y-m-d'),
         ]);
+        if ($success === false) {
+            throw new RuntimeException($stmt->errorInfo()[2]);
+        }
+
         $student->defineId($this->connection->lastInsertId());
 
         return $success;
